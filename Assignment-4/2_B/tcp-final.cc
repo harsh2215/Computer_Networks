@@ -1,9 +1,3 @@
-/*create a dumbbell topology of 4 leaves. Create two TCP and two UDP flows between the left and
- * right nodes, with defined data rates and packet sizes and ensure the bottleneck link is 2 Mbps.
- * Enable tracing, generate PCAP files for packet capture, and output a NetAnim trace file for
- * visualization. Routing tables of the routers should be printed, and the simulation should run for
- * 10 seconds.*/
-
 #include "ns3/applications-module.h"
 #include "ns3/core-module.h"
 #include "ns3/flow-monitor-module.h"
@@ -74,87 +68,12 @@ printStats(FlowMonitorHelper& flowmon_helper, bool perFlowInfo)
               << std::endl;
 }
 
-// static void CwndChange(Ptr<OutputStreamWrapper> stream, uint32_t oldCwnd, uint32_t newCwnd) {
-//     *stream->GetStream() << Simulator::Now().GetSeconds() << "\t" << oldCwnd << "\t" << newCwnd
-//     << std::endl;
-// }
-
-// static void RttChange(Ptr<OutputStreamWrapper> stream, Time oldRtt, Time newRtt) {
-//     *stream->GetStream() << Simulator::Now().GetSeconds() << "\t" << oldRtt.GetSeconds() << "\t"
-//     << newRtt.GetSeconds() << std::endl;
-// }
-
-// static void Ssthresh(Ptr<OutputStreamWrapper> stream, uint32_t oldSsthresh, uint32_t newSsthresh)
-// {
-//     *stream->GetStream() << Simulator::Now().GetSeconds() << "\t" << oldSsthresh << "\t" <<
-//     newSsthresh << std::endl;
-// }
-
-// void SetupTracingForFlow(Ptr<Socket> socket, std::string filenamePrefix) {
-// AsciiTraceHelper asciiTraceHelper;
-
-// Ptr<OutputStreamWrapper> cwndStream = asciiTraceHelper.CreateFileStream(filenamePrefix +
-// ".cwnd"); socket->TraceConnectWithoutContext("CongestionWindow", MakeBoundCallback(&CwndChange,
-// cwndStream));
-
-// Ptr<OutputStreamWrapper> rttStream = asciiTraceHelper.CreateFileStream(filenamePrefix + ".rtt");
-// socket->TraceConnectWithoutContext("RTT", MakeBoundCallback(&RttChange, rttStream));
-
-// Ptr<OutputStreamWrapper> ssthreshStream =
-//     asciiTraceHelper.CreateFileStream(filenamePrefix + "-ssthresh.txt");
-// socket->TraceConnectWithoutContext("SlowStartThreshold",
-//                                    MakeBoundCallback(&Ssthresh, ssthreshStream));
-// }
-
-// Below function is added to this code to implement different CCAs on different flows of the
-// topology
-
-// void
-// CreateTcpFlowWithCca(Ptr<Node> sender,
-//                      Ptr<Node> receiver,
-//                      Ipv4Address receiverAddress,
-//                      uint16_t port,
-//                      std::string ccaType,
-//                      std::string dataRate,
-//                      uint32_t packetSize,
-//                      double startTime,
-//                      double stopTime)
-// {
-//     TypeId tcpTypeId =
-//         TypeId::LookupByName(ccaType); // e.g., "ns3::TcpNewReno", "ns3::TcpCubic", etc.
-//     Config::Set("/NodeList/" + std::to_string(sender->GetId()) +
-//     "/$ns3::TcpL4Protocol/SocketType",
-//                 TypeIdValue(tcpTypeId));
-
-//     // Configure the receiver side (PacketSink)
-//     Address tcpSinkAddress(InetSocketAddress(receiverAddress, port));
-//     PacketSinkHelper tcpSinkHelper("ns3::TcpSocketFactory", tcpSinkAddress);
-//     ApplicationContainer tcpSinkApp = tcpSinkHelper.Install(receiver);
-//     tcpSinkApp.Start(Seconds(startTime));
-//     tcpSinkApp.Stop(Seconds(stopTime));
-
-//     // Configure the sender side (OnOffHelper as TCP client)
-//     OnOffHelper tcpClient("ns3::TcpSocketFactory", tcpSinkAddress);
-//     tcpClient.SetAttribute("OnTime", StringValue("ns3::ConstantRandomVariable[Constant=1]"));
-//     tcpClient.SetAttribute("OffTime", StringValue("ns3::ConstantRandomVariable[Constant=0]"));
-//     tcpClient.SetAttribute("DataRate", DataRateValue(DataRate(dataRate)));
-//     tcpClient.SetAttribute("PacketSize", UintegerValue(packetSize));
-
-//     ApplicationContainer tcpClientApp = tcpClient.Install(sender);
-//     tcpClientApp.Start(Seconds(startTime + 1.0)); // Start client slightly after the sink
-//     tcpClientApp.Stop(Seconds(stopTime));
-// }
-
 class MyApp : public Application
 {
   public:
     MyApp();
     virtual ~MyApp();
 
-    /**
-     * Register this type.
-     * \return The TypeId.
-     */
     static TypeId GetTypeId(void);
     void Setup(Ptr<Socket> socket,
                Address address,
@@ -196,7 +115,6 @@ MyApp::~MyApp()
     m_socket = 0;
 }
 
-/* static */
 TypeId
 MyApp::GetTypeId(void)
 {
@@ -479,31 +397,6 @@ main(int argc, char* argv[])
                                    "ns3::TcpHarsh",
                                    "Harsh"+std::to_string(i));
     }
-
-    // Set up NetAnim trace
-    // AnimationInterface anim("dumbbell-topology.xml");
-    // anim.EnablePacketMetadata();                                  // Optional
-    // anim.EnableIpv4L3ProtocolCounters(Seconds(0), Seconds(10.0)); // Optional
-
-    // Ptr<Socket> ns3TcpSocket = Socket::CreateSocket(nodes.Get(0), TcpSocketFactory::GetTypeId());
-
-    // Ptr<MyApp> app = CreateObject<MyApp>();
-    // app->Setup(ns3TcpSocket, sinkAddress, 1040, 1000000, DataRate("100Mbps"));
-    // nodes.Get(0)->AddApplication(app);
-    // app->SetStartTime(Seconds(1.));
-    // app->SetStopTime(Seconds(20.));
-
-    // AsciiTraceHelper asciiTraceHelper; // this is for the cwnd
-    // Ptr<OutputStreamWrapper> stream = asciiTraceHelper.CreateFileStream("Harsh.cwnd");
-    // ns3TcpSocket->TraceConnectWithoutContext("CongestionWindow",
-    //                                          MakeBoundCallback(&CwndChange, stream));
-
-    // Ptr<OutputStreamWrapper> stream4 = asciiTraceHelper.CreateFileStream("Harsh_rtt.txt");
-    // ns3TcpSocket->TraceConnectWithoutContext("RTT", MakeBoundCallback(&RttChange, stream4));
-
-    // Ptr<OutputStreamWrapper> stream35 = asciiTraceHelper.CreateFileStream("Harsh-ssthresh.txt");
-    // ns3TcpSocket->TraceConnectWithoutContext("SlowStartThreshold",
-    //                                          MakeBoundCallback(&Ssthresh, stream35));
 
     Simulator::Stop(Seconds(10.0));
 
