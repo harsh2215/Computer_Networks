@@ -267,14 +267,18 @@ CalculateJainsFairnessIndex(const std::vector<double>& throughputs)
 {
     double sum = 0.0;
     double sumSquare = 0.0;
+    double n = throughputs.size()/2;
+    int count = 0;
 
     for (double throughput : throughputs)
     {
+        count++;
+        if(count > n){
+            break;
+        }
         sum += throughput;
         sumSquare += throughput * throughput;
     }
-
-    double n = throughputs.size();
 
     return (sum * sum) / (n * sumSquare);
 }
@@ -368,17 +372,6 @@ main(int argc, char* argv[])
     // Enable routing
     Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
-    // Print routing table of the routers
-    // Ptr<OutputStreamWrapper> routingStream1 = Create<OutputStreamWrapper>(&std::cout);
-    // routers.Get(0)->GetObject<Ipv4>()->GetRoutingProtocol()->PrintRoutingTable(routingStream1);
-
-    // Ptr<OutputStreamWrapper> routingStream2 = Create<OutputStreamWrapper>(&std::cout);
-    // routers.Get(1)->GetObject<Ipv4>()->GetRoutingProtocol()->PrintRoutingTable(routingStream2);
-
-    // pointToPoint.BoundingBox (1, 1, 100, 100);
-
-    // leafTorouter.EnablePcapAll("dumbbell-topology");
-
     uint32_t port = 8080;
 
     for(uint i = 0; i < nflows; i++) {
@@ -425,10 +418,6 @@ main(int argc, char* argv[])
     std::cout << "Jain's Fairness Index: " << jainsFairnessIndex << std::endl;
 
     Simulator::Destroy();
-
-    // Run the simulation
-    // Simulator::Run();
-    // Simulator::Destroy();
 
     return 0;
 }
