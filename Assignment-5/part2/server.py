@@ -62,6 +62,8 @@ class Node:
                     chunk_size = 1024
                     for i in range(0, len(file_data), chunk_size):
                         conn.sendall(file_data[i:i+chunk_size])
+                    # Send end marker
+                    conn.shutdown(socket.SHUT_WR)
                 else:
                     conn.sendall(file_data.encode('utf-8'))
             elif data.startswith("SENDFILE"):
@@ -151,10 +153,11 @@ class Node:
                         chunks = b""
                         while True:
                             chunk = s.recv(1024)
-                            if len(chunk) < 1024:
-                                chunks += chunk
+                            if not chunk:  # Connection closed
                                 break
                             chunks += chunk
+                            if len(chunk) < 1024:  # Last chunk
+                                break
                         return chunks
                     else:
                         print(f"Node {self.node_id} received error: {message}")
@@ -196,10 +199,11 @@ class Node:
                         with open(f"{self.files_dir}/{file_path}", "wb") as f:
                             while True:
                                 chunk = s.recv(1024)
-                                if len(chunk) < 1024:
-                                    f.write(chunk)
+                                if not chunk:  # Connection closed
                                     break
                                 f.write(chunk)
+                                if len(chunk) < 1024:  # Last chunk
+                                    break
                         print(f"Node {self.node_id} received file {file_path} from leader")
                     else:
                         print(f"Node {self.node_id} received error: {message}")
