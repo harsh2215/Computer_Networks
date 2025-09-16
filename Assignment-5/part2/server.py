@@ -249,7 +249,7 @@ def main():
 
         time.sleep(1)
         # node 2 is request file from leader node
-        nodes[2].request_file_from_leader(f"12241170.jpg")
+        nodes[2].request_file_from_leader(f"12241300.png")
 
     except KeyboardInterrupt:
         print("Caught keyboard interrupt, exiting")

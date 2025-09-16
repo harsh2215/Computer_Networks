@@ -13,7 +13,7 @@ It is a p2p network of 3 Nodes in which one node will act as a leader and other 
     ```bash
     python server.py
     ```
-2. **File Request**: The code includes a request for a file named `12241170.jpg` from the leader.
+2. **File Request**: The code includes a request for a file named `12241300.png` from the leader.
 
 3. You can change the filename to see different cases.
 
